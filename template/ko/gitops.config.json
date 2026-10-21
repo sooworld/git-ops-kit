@@ -1,0 +1,19 @@
+{
+  "locale": "ko",
+  "protectedBranches": ["main"],
+  "commit": {
+    "types": ["feat", "fix", "docs", "chore", "refactor", "test", "style", "perf", "build", "ci", "revert"],
+    "requiredFields": ["배경:", "결정"],
+    "warnFields": ["다음:"],
+    "secretPatterns": [
+      "-----BEGIN [A-Z ]*PRIVATE KEY-----",
+      "\\bA(KIA|SIA)[0-9A-Z]{16}\\b",
+      "\\bgh[pousr]_[A-Za-z0-9]{36,}",
+      "\\bgithub_pat_[A-Za-z0-9_]{22,}",
+      "\\bxox[abprs]-[A-Za-z0-9-]{10,}",
+      "\\bsk-(ant-)?(?=[A-Za-z0-9_-]*[0-9])[A-Za-z0-9_-]{20,}",
+      "\\beyJ[A-Za-z0-9_-]{10,}\\.eyJ[A-Za-z0-9_-]{10,}\\.[A-Za-z0-9_-]{10,}",
+      "([Pp]assword|PASSWORD|[Pp]asswd|[Ss]ecret|SECRET|[Tt]oken|TOKEN|[Aa]pi[_-]?[Kk]ey|API[_-]?KEY)[\"':= ]+(?=[A-Za-z0-9+/_.=-]*[0-9])[A-Za-z0-9+/_.=-]{16,}"
+    ]
+  }
+}

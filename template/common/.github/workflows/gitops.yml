@@ -1,0 +1,22 @@
+name: gitops guards
+# Runs the kit checks only when the guard files change. Other PRs do not run it.
+# Without server-side branch protection a failing run does not block merging (docs/GIT.md: limits section).
+on:
+  pull_request:
+    paths: ['.githooks/**', 'scripts/gitops/**', 'tests/gitops/**', 'gitops.config.json', '.gitmessage', '.claude/settings.json', '.codex/hooks.json', '.github/workflows/gitops.yml']
+  push:
+    branches: [main] # TODO(gitops): list every branch in gitops.config.json protectedBranches, then delete this marker
+    paths: ['.githooks/**', 'scripts/gitops/**', 'tests/gitops/**', 'gitops.config.json', '.gitmessage', '.claude/settings.json', '.codex/hooks.json', '.github/workflows/gitops.yml']
+permissions:
+  contents: read
+jobs:
+  guard-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - run: node --test "tests/gitops/*.check.mjs"

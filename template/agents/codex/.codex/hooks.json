@@ -1,0 +1,13 @@
+{
+  "hooks": {
+    "PreToolUse": [{
+      "matcher": "Bash|mcp__.*merge.*",
+      "hooks": [{
+        "type": "command",
+        "command": "node \"$(git rev-parse --show-toplevel)/scripts/gitops/guard-tools.mjs\"",
+        "commandWindows": "node scripts/gitops/guard-tools.mjs",
+        "timeout": 30
+      }]
+    }]
+  }
+}

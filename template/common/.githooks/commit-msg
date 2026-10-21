@@ -1,0 +1,5 @@
+#!/bin/sh
+# Git commit-msg hook wrapper. The logic is in scripts/gitops/commit-msg.mjs (rules: docs/GIT.md, values: gitops.config.json).
+# Install once per clone: node scripts/gitops/setup.mjs
+command -v node >/dev/null 2>&1 || { echo 'commit-msg: PATH에서 node를 찾지 못했다 / node not found on PATH (Node 22+ required).' >&2; exit 1; }
+exec node "$(dirname "$0")/../scripts/gitops/commit-msg.mjs" "$@"

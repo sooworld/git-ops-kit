@@ -1,0 +1,2 @@
+# Hook wrappers are POSIX sh scripts. Keep LF so the shebang works on every OS.
+.githooks/** text eol=lf

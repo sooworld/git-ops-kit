@@ -1,0 +1,14 @@
+# 비밀이 섞일 수 있는 산출물: 세션 쿠키·토큰이 들어갈 수 있는 원본은 커밋하지 않는다.
+*.har
+.env
+.env.*
+!.env.example
+
+# 로컬 도구 설정(개인 권한·토큰)
+.claude/settings.local.json
+
+# 로그·OS
+*.log
+Thumbs.db
+.DS_Store
+desktop.ini

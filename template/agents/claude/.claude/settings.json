@@ -1,0 +1,8 @@
+{
+  "hooks": {
+    "PreToolUse": [{
+      "matcher": "Bash|powershell|PowerShell|mcp__.*merge.*",
+      "hooks": [{ "type": "command", "command": "node \"$CLAUDE_PROJECT_DIR/scripts/gitops/guard-tools.mjs\"" }]
+    }]
+  }
+}
