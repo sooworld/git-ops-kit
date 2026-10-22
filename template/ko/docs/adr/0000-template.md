@@ -2,11 +2,13 @@
 
 <!-- ADR은 여러 PR에 걸친 장기 결정과 그 결정이 지금도 유효한지를 기록한다. 변경 하나의 이유는 커밋에 쓴다.
      파일 이름: docs/adr/NNNN-<slug>.md(4자리 번호). 이 양식을 복사해 쓰고, 이 주석은 지운다.
-     상태 값: proposed, accepted, deprecated, superseded. 상태가 accepted이고 보호 브랜치에 병합된 ADR만 유효하다.
+     상태 값: proposed, accepted, deprecated, superseded. 유효한 ADR은 보호 브랜치에 있고 상태가 accepted인 것뿐이다.
+     승인자가 PR을 병합하는 것이 승인이므로, 승인받을 결정은 accepted로 써서 PR을 낸다. 작업 브랜치·PR 안의 ADR은 상태와 관계없이 제안이다.
+     결정 없이 논의만 남길 때 proposed로 병합한다. 효력을 주려면 후속 PR에서 accepted로 바꾼다.
      결정이 바뀌면 새 ADR을 만들고 기존 ADR의 상태와 대체 링크를 바꾼다. 덧붙이는 결정은 '보완'으로 연결한다.
      기존 ADR을 고치면 '변경 이력'에 PR 번호와 함께 남긴다. -->
 
-- 상태: proposed — 승인자가 이 문서를 담은 PR을 보호 브랜치에 병합한 시점부터 효력. 병합 전 PR 안에서는 제안이다.
+- 상태: accepted — 승인자가 이 문서를 담은 PR을 보호 브랜치에 병합한 시점부터 효력. 병합 전 PR 안에서는 제안이다.
 - 날짜: YYYY-MM-DD
 - 대체한 결정: 없음
 - 보완하는 결정: 없음
