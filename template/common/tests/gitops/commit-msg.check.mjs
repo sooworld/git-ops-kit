@@ -30,6 +30,21 @@ test('commit-msg: bad subject or missing fields are rejected', () => {
   assert.equal(checkMessage('docs: x\n', ko).errors.length, 2);
 });
 
+test('commit-msg: a required field without content is rejected', () => {
+  assert.equal(checkMessage('feat: example\n\n배경:\n결정\n', ko).errors.length, 2);
+  assert.equal(ok('docs: x\n\n배경: y\n결정과 버린 대안:\n', ko), false);
+  assert.equal(ok('docs: x\n\n배경:\n결정과 버린 대안: y', ko), false, 'the next line starts another field');
+  assert.equal(ok('docs: x\r\n\r\nBackground: \r\nDecision and rejected options: y\r\nRefs: #1\r\n', en), false, 'CRLF');
+  assert.equal(ok('docs: x\n\nBackground: y\nDecision and rejected options:\nRefs: #1\n', en), false, 'a trailer is not content');
+  assert.equal(ok('docs: x\n\n배경: y\n결정과 버린 대안:\n# 결정: 주석\n', ko), false, 'a comment is not content');
+});
+
+test('commit-msg: content on the next line or as a list item counts', () => {
+  assert.ok(ok('docs: x\n\n배경:\n  다음 줄에 쓴 이유\n결정과 버린 대안: y', ko));
+  assert.ok(ok('docs: x\n\n배경:\n- 이유: 목록으로 쓴 내용\n결정과 버린 대안: y', ko));
+  assert.ok(ok('docs: x\n\n배경:\n1. 원인: 번호 목록\n결정과 버린 대안: y', ko));
+});
+
 test('commit-msg: comment lines and text below the scissors line do not count', () => {
   assert.equal(ok('docs: x\n\n# 배경: in a comment\n결정: y', ko), false);
   assert.equal(ok('docs: x\n\n결정: y\n# ------------------------ >8 ------------------------\n배경: below scissors', ko), false);

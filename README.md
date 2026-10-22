@@ -8,7 +8,7 @@
 
 | 설치되는 것 | 하는 일 |
 |---|---|
-| `.githooks/commit-msg` → `scripts/gitops/commit-msg.mjs` | 커밋 제목 형식, 필수 칸, 메시지 안의 비밀 값을 검사한다 |
+| `.githooks/commit-msg` → `scripts/gitops/commit-msg.mjs` | 커밋 제목 형식, 필수 칸과 빈 칸, 메시지 안의 비밀 값을 검사한다 |
 | `.githooks/pre-push` → `scripts/gitops/pre-push.mjs` | 보호 브랜치의 생성·갱신·삭제 push를 거부한다(사람 포함) |
 | `scripts/gitops/guard-tools.mjs` + 에이전트 도구 설정 | 에이전트의 PR 병합, 보호 브랜치 push, 훅 우회를 실행 전에 막는다 |
 | `.github/pull_request_template.md`, `docs/GIT.md` '위험 등급' | 사람은 diff 대신 판정용 본문으로 판정하고, 바뀐 경로로 읽을 범위를 정한다 |

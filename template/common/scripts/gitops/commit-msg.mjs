@@ -1,7 +1,8 @@
 // commit-msg hook logic (rules: docs/GIT.md, format: .gitmessage, values: gitops.config.json commit.*).
 // Usage (from .githooks/commit-msg or another hook manager): node scripts/gitops/commit-msg.mjs <message-file>
 // Rejects: secret-looking values in the message, a subject not matching '<type>(scope)!: <summary>', a missing
-// required field (a line starting with the field text). Warns: a line starting with a warn field.
+// required field (a line starting with the field text), an empty required field. Warns: a line starting with a warn
+// field. Only emptiness is checked: whether the content explains anything is left to review.
 // Subjects starting with Merge/Revert/fixup!/squash!/amend! are not checked at all (same as the original sh hook).
 import { readFileSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
@@ -10,7 +11,19 @@ import { msg } from './messages.mjs';
 
 const SKIP_SUBJECT = /^(Merge |Revert |fixup! |squash! |amend! )/;
 const SCISSORS = /^# -* >8 -*$/;
+// A line that starts another field or a trailer ('Refs: #12'). List items ('- a: b', '1. a: b') are content.
+const LABEL = /^(?![-*+]\s|\d+[.)]\s)[^\s:][^:]{0,30}:(\s|$)/;
 const escapeRegExp = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// A field has content when text follows it on its line (after the first ':' when the line has one), or when the next
+// non-blank line exists and does not start another field or trailer. An unfilled template ('배경:') has none.
+function hasContent(lines, index, field, fields) {
+  const rest = lines[index].slice(field.length);
+  const colon = rest.indexOf(':');
+  if (/\S/.test(colon === -1 ? rest : rest.slice(colon + 1))) return true;
+  const next = lines.slice(index + 1).find(line => /\S/.test(line));
+  return next !== undefined && !fields.some(other => next.startsWith(other)) && !LABEL.test(next);
+}
 
 // Lines Git keeps: everything above the scissors line, without lines starting with '#'.
 export function messageLines(text) {
@@ -33,8 +46,11 @@ export function checkMessage(text, config) {
   });
   const types = config.commit.types.map(escapeRegExp).join('|');
   if (!new RegExp(`^(${types})(\\([^)]+\\))?!?: .+`).test(subject)) errors.push(msg(locale, 'commitSubject', config.commit.types));
+  const fields = [...config.commit.requiredFields, ...config.commit.warnFields];
   for (const field of config.commit.requiredFields) {
-    if (!lines.some(line => line.startsWith(field))) errors.push(msg(locale, 'commitMissing', field));
+    const found = lines.flatMap((line, i) => (line.startsWith(field) ? [i] : []));
+    if (!found.length) errors.push(msg(locale, 'commitMissing', field));
+    else if (!found.some(i => hasContent(lines, i, field, fields))) errors.push(msg(locale, 'commitEmpty', field));
   }
   for (const field of config.commit.warnFields) {
     if (lines.some(line => line.startsWith(field))) warnings.push(msg(locale, 'commitWarn', field));
