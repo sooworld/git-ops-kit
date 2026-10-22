@@ -1,7 +1,7 @@
 // Kit checks, run from the kit root: node --test "tests/*.test.mjs"
 // - installer: installs and passes the installed checks per language, never overwrites, rejects bad targets
 // - templates: no residue of the repository this kit was extracted from, default secret patterns catch common
-//   secrets without blocking plain sentences
+//   secrets without blocking plain sentences, the workflow can be a required check
 // - documents: every "<file>.md '<section>'" reference points to an existing heading; ko and en stay in step
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -90,6 +90,18 @@ test('the kit carries no residue of the repository it was extracted from', () =>
   const hits = files.flatMap(path =>
     readFileSync(path, 'utf8').split('\n').map((line, i) => (RESIDUE.test(line) ? `${rel(KIT, path)}:${i + 1}: ${line.trim()}` : null)).filter(Boolean));
   assert.deepEqual(hits, []);
+});
+
+// GitHub leaves a required check "Pending" when a path filter skips its workflow, which blocks the merge.
+// ADOPTION.md and GIT.md tell adopters to require this check, so pull requests must always run it.
+test('workflow: the pull_request trigger has no path filter, so its check can be required', () => {
+  const lines = readFileSync(join(KIT, 'template/common/.github/workflows/gitops.yml'), 'utf8').split(/\r?\n/);
+  const start = lines.findIndex(line => /^\s*pull_request:/.test(line));
+  assert.notEqual(start, -1, 'no pull_request trigger');
+  const indent = lines[start].search(/\S/);
+  const end = lines.findIndex((line, i) => i > start && /\S/.test(line) && line.search(/\S/) <= indent);
+  const block = lines.slice(start + 1, end === -1 ? undefined : end);
+  assert.deepEqual(block.filter(line => /^\s*paths(-ignore)?:/.test(line)), []);
 });
 
 for (const lang of LANGS) {

@@ -114,19 +114,19 @@ Git을 쓰는 목적은 **에이전트에게 맡긴 작업을 승인자가 안�
 - 요청·Issue·작업 ID로 인용한다. 문서 위치는 절 번호 대신 절 제목으로 쓰고, 과거 위치를 특정해야 하면 커밋 해시를 붙인다.
 - 트레일러(`Refs:`, `Co-Authored-By:` 등)는 맨 끝에 빈 줄 없이 둔다.
 - 이유를 찾을 때: `git log --follow -- <file>`, `git log -L :<func>:<file>`, `git log --format='%h %(trailers:key=Refs,valueonly)'`.
-- `commit-msg`는 제목 형식, 필수 칸, 메시지 안의 비밀 값만 검사한다. staged diff의 비밀 값·개인정보는 커밋하는 쪽이 직접 점검한다.
+- `commit-msg`는 제목 형식, 필수 칸과 그 칸이 비었는지, 메시지 안의 비밀 값만 검사한다. 칸의 내용이 이유를 설명하는지는 검사하지 못하므로 독립 검수가 본다. staged diff의 비밀 값·개인정보는 커밋하는 쪽이 직접 점검한다.
 
 ## 장치와 한계
 
-- 서버 쪽 브랜치 보호(공개 저장소 또는 유료 플랜)를 쓸 수 있으면 보호 브랜치에 "PR 필수"와 "gitops guards 검사 필수"를 켠다. 쓸 수 없으면 CI 실패는 병합을 막지 못하고, 모든 장치는 로컬 실수 방지용이다. 권한 경계가 아니다.
+- 서버 쪽 브랜치 보호(공개 저장소 또는 유료 플랜)를 쓸 수 있으면 보호 브랜치에 "PR 필수"와 필수 검사 `guard-checks`(워크플로 gitops guards의 작업)를 켠다. 쓸 수 없으면 CI 실패는 병합을 막지 못하고, 모든 장치는 로컬 실수 방지용이다. 권한 경계가 아니다.
   <!-- TODO(gitops): 이 저장소에서 서버 보호를 쓸 수 있는지와 확인한 날짜를 적고 이 줄을 지운다. -->
 - 설치(clone마다 한 번): `node scripts/gitops/setup.mjs`. 훅 폴더와 커밋 양식을 이 저장소 설정에만 연결한다. 점검만: `node scripts/gitops/setup.mjs --check`. worktree는 설정을 공유한다. 다른 훅 설정(전역 `core.hooksPath`, husky 등)이 있으면 setup은 바꾸지 않고 안내한다. 그때는 그 훅에서 `node scripts/gitops/commit-msg.mjs "$1"`과 `node scripts/gitops/pre-push.mjs "$@"`를 부른다.
 - 검증: `node --test "tests/gitops/*.check.mjs"` (Node 22+, Git 필요). 인자 없는 `node --test`는 프로젝트의 다른 테스트까지 실행하므로 쓰지 않는다.
 - 장치:
-  - `.githooks/commit-msg` → `scripts/gitops/commit-msg.mjs`: 커밋 메시지 형식과 메시지 안의 비밀 값 검사.
+  - `.githooks/commit-msg` → `scripts/gitops/commit-msg.mjs`: 커밋 메시지 형식, 빈 필수 칸, 메시지 안의 비밀 값 검사.
   - `.githooks/pre-push` → `scripts/gitops/pre-push.mjs`: 어느 원격이든 보호 브랜치의 생성·갱신·삭제 push를 거부한다. 사람도 해당된다. 보호 브랜치 반영은 GitHub의 PR 병합으로만 한다.
   - `scripts/gitops/guard-tools.mjs` + 에이전트 도구 설정(`.claude/settings.json`, `.codex/hooks.json` 등): 에이전트가 셸 명령이나 MCP 병합 도구를 실행하기 전에 검사해 PR 병합, 보호 브랜치 push, 훅 우회(`--no-verify`, `commit -n`, hooksPath 변경)를 막는다.
-  - `.github/workflows/gitops.yml`: 위 장치가 바뀌는 PR에서만 검사를 돌린다.
+  - `.github/workflows/gitops.yml`: 모든 PR에서 검사를 돌린다. 경로 필터로 건너뛰면 필수 검사가 Pending으로 남아 병합을 막기 때문이다. 보호 브랜치 push에서는 위 장치가 바뀔 때만 돌린다.
 - 한계:
   - guard는 명령 문자열만 본다. 스크립트·Makefile·셸 별칭 안의 명령과 이름에 merge가 없는 MCP 도구는 보지 못한다. 보호 브랜치 push는 pre-push가 한 번 더 막지만 PR 병합은 다시 막는 장치가 없다.
   - 훅은 체크아웃된 파일에 달려 있다. 이 장치를 들이기 전 브랜치를 체크아웃한 worktree에는 훅이 없다.

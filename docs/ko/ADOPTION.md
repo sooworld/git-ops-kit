@@ -44,7 +44,7 @@ node <키트>/install.mjs <대상 저장소 최상위> --lang ko --agents claude
 | `locale` | 훅 메시지 언어 `ko`/`en` | `ko` |
 | `protectedBranches` | 직접 push·삭제를 막을 브랜치 이름. 정확한 이름만 쓰고 글롭은 지원하지 않는다 | `["main"]` |
 | `commit.types` | 제목 `<type>(scope)!: <요약>`의 type 목록 | `feat`, `fix`, `docs` 등 11개 |
-| `commit.requiredFields` | 메시지에 있어야 할 칸. 그 문자열로 시작하는 줄이 하나 있어야 한다 | `배경:`, `결정` |
+| `commit.requiredFields` | 메시지에 있어야 할 칸. 그 문자열로 시작하는 줄이 있고, 같은 줄이나 다음 줄에 내용이 있어야 한다 | `배경:`, `결정` |
 | `commit.warnFields` | 있으면 경고만 하는 칸 | `다음:` |
 | `commit.secretPatterns` | 메시지에 있으면 거부할 값의 정규식(JavaScript, 대소문자 구분, 줄 단위) | 개인 키, AWS·GitHub·Slack·OpenAI/Anthropic 키, JWT, `password=`·`token:` 뒤의 숫자 섞인 16자 이상 값 |
 
@@ -111,7 +111,9 @@ setup이 `TODO(gitops)` 자리를 파일:줄로 보여 준다. 채운 뒤 표시
 
 ## GitHub 설정
 
-- 서버 쪽 브랜치 보호를 쓸 수 있으면(공개 저장소 또는 유료 플랜) 보호 브랜치에 "PR 필수"와 "gitops guards 검사 필수"를 켠다. 그러면 로컬 장치 위에 권한 경계가 생긴다. ADR-0001의 재검토 조건에 해당하므로 ADR에 적는다.
+- 서버 쪽 브랜치 보호를 쓸 수 있으면(공개 저장소 또는 유료 플랜) 보호 브랜치에 "PR 필수"와 필수 검사 `guard-checks`(워크플로 gitops guards의 작업)를 켠다. 그러면 로컬 장치 위에 권한 경계가 생긴다. ADR-0001의 재검토 조건에 해당하므로 ADR에 적는다.
+  - 이 워크플로는 모든 PR에서 돈다. 경로 필터로 건너뛴 워크플로의 필수 검사는 Pending으로 남아 병합을 막기 때문이다. `pull_request`에 경로 필터를 다시 넣지 않는다.
+  - merge queue를 쓰면 워크플로에 `merge_group` 트리거를 더한다. `pull_request`와 별개의 이벤트다.
 - 병합 방식은 GIT.md 'PR'에서 고른 하나만 켠다.
 - 병합 후 브랜치 자동 삭제를 켜면 GIT.md '종료와 작업 공간 정리'의 원격 브랜치 확인은 필요 없어진다. 로컬 브랜치와 worktree는 그대로 정리한다.
 - 승인자가 여러 명이면 CODEOWNERS로 고위험 경로의 리뷰 담당을 정한다([PROFILES.md](PROFILES.md) '팀').

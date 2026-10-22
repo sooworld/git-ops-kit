@@ -1,9 +1,10 @@
 name: gitops guards
-# Runs the kit checks only when the guard files change. Other PRs do not run it.
+# Runs the kit checks on every PR so the check can be required: GitHub leaves a required check "Pending" when a
+# path filter skips its workflow. Pushes to protected branches run it only when the guard files change.
 # Without server-side branch protection a failing run does not block merging (docs/GIT.md: limits section).
+# With a merge queue, also add the merge_group event.
 on:
   pull_request:
-    paths: ['.githooks/**', 'scripts/gitops/**', 'tests/gitops/**', 'gitops.config.json', '.gitmessage', '.claude/settings.json', '.codex/hooks.json', '.github/workflows/gitops.yml']
   push:
     branches: [main] # TODO(gitops): list every branch in gitops.config.json protectedBranches, then delete this marker
     paths: ['.githooks/**', 'scripts/gitops/**', 'tests/gitops/**', 'gitops.config.json', '.gitmessage', '.claude/settings.json', '.codex/hooks.json', '.github/workflows/gitops.yml']
